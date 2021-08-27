@@ -1,10 +1,20 @@
 import React, { useEffect, useState } from "react";
 
 function App() {
-  const [session, setSession] = useState(2);
+  const [session, setSession] = useState(1);
   const [breaktime, setBreaktime] = useState(5);
   const [timeSeconds, setTimeSeconds] = useState(session * 60);
+  const [isActive, setIsActive] = useState(false);
 
+  const toggle = () => {
+    setIsActive(!isActive);
+  };
+
+  const reset = () => {
+    // timer resets to default
+    // setTimeSeconds(session * 60)
+    setIsActive(false);
+  };
   // function that takes in a number
   // converts that number to minutes using seconds
   // e.g 5min -> 300secs
@@ -17,21 +27,34 @@ function App() {
         minutes: Math.floor((difference / 60) % 60),
         seconds: Math.floor(difference % 60),
       };
+    } else if (difference === 0) {
+      timeLeft = {
+        minutes: 0,
+        seconds: 0,
+      };
     }
-    console.log(timeLeft);
+
     return timeLeft;
   };
-  let timeBeThis = calculateTimeLeft();
 
-  // useEffect(() => {
-  //   const settingTimeout = setTimeout(() => {
-  //     alert("times up!");
-  //     // countdown goes here
-  //   }, session * 10 * 60);
-  //   return () => {
-  //     clearTimeout(settingTimeout);
-  //   };
-  // }, []);
+  useEffect(() => {
+    let myInterval = null;
+    if (isActive) {
+      myInterval = setInterval(() => {
+        if (timeSeconds > 0) {
+          setTimeSeconds((timeSeconds) => timeSeconds - 1);
+
+          console.log("if", timeSeconds);
+        }
+      }, 1000);
+    }
+    if (timeSeconds === 0) {
+      console.log("else", timeSeconds);
+      clearInterval(myInterval);
+    }
+
+    return () => clearInterval(myInterval);
+  }, [isActive, timeSeconds]);
 
   return (
     <div className="App">
@@ -82,18 +105,22 @@ function App() {
           <p id="timer-label">Session/Idle/Break</p>
           {/* 8 */}
           <div id="time-left">
-            {timeBeThis.minutes < 10
-              ? `0${timeBeThis.minutes}`
-              : timeBeThis.minutes}
+            {calculateTimeLeft().minutes < 10
+              ? `0${calculateTimeLeft().minutes}`
+              : calculateTimeLeft().minutes}
             :
-            {timeBeThis.seconds < 10
-              ? `0${timeBeThis.seconds}`
-              : timeBeThis.seconds}
+            {calculateTimeLeft().seconds < 10
+              ? `0${calculateTimeLeft().seconds}`
+              : calculateTimeLeft().seconds}
           </div>
           {/* 9 */}
-          <button id="start-stop">PLAY/PAUSE</button>
+          <button id="start_stop" onClick={toggle}>
+            PLAY/PAUSE
+          </button>
           {/* 10 */}
-          <button id="reset">RESET</button>
+          <button id="reset" onClick={reset}>
+            RESET
+          </button>
         </div>
       </section>
       <section className="footer">MADE w/ ❤️ BY JOSEPH</section>
