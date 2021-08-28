@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 
 function App() {
-  const [session, setSession] = useState(1);
+  const [session, setSession] = useState(5);
   const [breaktime, setBreaktime] = useState(5);
   const [timeSeconds, setTimeSeconds] = useState(session * 60);
   const [isActive, setIsActive] = useState(false);
@@ -12,9 +12,12 @@ function App() {
 
   const reset = () => {
     // timer resets to default
-    // setTimeSeconds(session * 60)
+    setSession(25);
+    setBreaktime(5);
+    setTimeSeconds(25 * 60);
     setIsActive(false);
   };
+
   // function that takes in a number
   // converts that number to minutes using seconds
   // e.g 5min -> 300secs
@@ -48,6 +51,7 @@ function App() {
         }
       }, 1000);
     }
+    // && !isActive
     if (timeSeconds === 0) {
       console.log("else", timeSeconds);
       clearInterval(myInterval);
@@ -66,14 +70,30 @@ function App() {
           {/* 4 */}
           <button
             id="session-increment"
-            onClick={() => setSession(session + 1)}
+            onClick={() => {
+              // if the new state is computed using the prev state, you can pass a function to setState.
+              // The function will receive the previous value and return an updated value.
+              if (session > 59) {
+                setSession(60);
+              } else {
+                setSession((session) => session + 1);
+              }
+              setTimeSeconds((timeSeconds) => timeSeconds + 60);
+            }}
           >
             +
           </button>
           {/* 3 */}
           <button
             id="session-decrement"
-            onClick={() => setSession(session - 1)}
+            onClick={() => {
+              if (session < 2) {
+                setSession(1);
+              } else {
+                setSession((session) => session - 1);
+                setTimeSeconds((timeSeconds) => timeSeconds - 60);
+              }
+            }}
           >
             -
           </button>
@@ -86,14 +106,28 @@ function App() {
           {/* 4 */}
           <button
             id="break-increment"
-            onClick={() => setBreaktime(breaktime + 1)}
+            onClick={() => {
+              if (breaktime > 59) {
+                setBreaktime(60);
+              } else {
+                setBreaktime((breaktime) => breaktime + 1);
+                setTimeSeconds((timeSeconds) => timeSeconds + 60);
+              }
+            }}
           >
             +
           </button>
           {/* 3 */}
           <button
             id="break-decrement"
-            onClick={() => setBreaktime(breaktime - 1)}
+            onClick={() => {
+              if (breaktime < 2) {
+                setBreaktime(1);
+              } else {
+                setBreaktime((breaktime) => breaktime - 1);
+                setTimeSeconds((timeSeconds) => timeSeconds - 60);
+              }
+            }}
           >
             -
           </button>
