@@ -1,10 +1,17 @@
 import React, { useEffect, useState } from "react";
 
 function App() {
-  const [session, setSession] = useState(5);
+  const defaultSession = 25;
+  const defaultBreak = 5;
+  const minuteMultiplier = 60;
+  const [session, setSession] = useState(55);
   const [breaktime, setBreaktime] = useState(5);
-  const [timeSeconds, setTimeSeconds] = useState(session * 60);
+  const [timeSeconds, setTimeSeconds] = useState(session * minuteMultiplier);
   const [isActive, setIsActive] = useState(false);
+  // current state
+  const [sessionState, setSessionState] = useState(false);
+  const [breakState, setBreakState] = useState(false);
+  const [idleState, setIdleState] = useState(true);
 
   const toggle = () => {
     setIsActive(!isActive);
@@ -12,9 +19,9 @@ function App() {
 
   const reset = () => {
     // timer resets to default
-    setSession(25);
-    setBreaktime(5);
-    setTimeSeconds(25 * 60);
+    setSession(defaultSession);
+    setBreaktime(defaultBreak);
+    setTimeSeconds(defaultSession * minuteMultiplier);
     setIsActive(false);
   };
 
@@ -23,11 +30,12 @@ function App() {
   // e.g 5min -> 300secs
   const calculateTimeLeft = () => {
     let difference = timeSeconds;
+    console.log("diff: ", difference);
     let timeLeft = {};
 
     if (difference > 0) {
       timeLeft = {
-        minutes: Math.floor((difference / 60) % 60),
+        minutes: Math.floor(difference / 60),
         seconds: Math.floor(difference % 60),
       };
     } else if (difference === 0) {
@@ -75,10 +83,11 @@ function App() {
               // The function will receive the previous value and return an updated value.
               if (session > 59) {
                 setSession(60);
+                // setTimeSeconds(60 * minuteMultiplier);
               } else {
                 setSession((session) => session + 1);
+                setTimeSeconds((timeSeconds) => timeSeconds + 60);
               }
-              setTimeSeconds((timeSeconds) => timeSeconds + 60);
             }}
           >
             +
@@ -149,7 +158,7 @@ function App() {
           </div>
           {/* 9 */}
           <button id="start_stop" onClick={toggle}>
-            PLAY/PAUSE
+            {`${isActive ? "PAUSE" : "PLAY"}`}
           </button>
           {/* 10 */}
           <button id="reset" onClick={reset}>
