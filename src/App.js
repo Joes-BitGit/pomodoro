@@ -4,14 +4,17 @@ function App() {
   const defaultSession = 25;
   const defaultBreak = 5;
   const minuteMultiplier = 60;
-  const [session, setSession] = useState(55);
+  const [session, setSession] = useState(5);
   const [breaktime, setBreaktime] = useState(5);
   const [timeSeconds, setTimeSeconds] = useState(session * minuteMultiplier);
+  const [breakTimeSeconds, setBreakTimeSeconds] = useState(
+    breaktime * minuteMultiplier
+  );
   const [isActive, setIsActive] = useState(false);
   // current state
-  const [sessionState, setSessionState] = useState(false);
+  const [sessionState, setSessionState] = useState(true);
   const [breakState, setBreakState] = useState(false);
-  const [idleState, setIdleState] = useState(true);
+  // const [idleState, setIdleState] = useState(true);
 
   const toggle = () => {
     setIsActive(!isActive);
@@ -29,7 +32,13 @@ function App() {
   // converts that number to minutes using seconds
   // e.g 5min -> 300secs
   const calculateTimeLeft = () => {
-    let difference = timeSeconds;
+    let difference = null;
+    if (sessionState) {
+      difference = timeSeconds;
+    } else if (breakState) {
+      difference = breakTimeSeconds;
+    }
+
     console.log("diff: ", difference);
     let timeLeft = {};
 
@@ -49,24 +58,56 @@ function App() {
   };
 
   useEffect(() => {
-    let myInterval = null;
-    if (isActive) {
-      myInterval = setInterval(() => {
-        if (timeSeconds > 0) {
-          setTimeSeconds((timeSeconds) => timeSeconds - 1);
+    let sessionInterval = null;
+    let breakInterval = null;
 
-          console.log("if", timeSeconds);
-        }
-      }, 1000);
+    // should i lock in my session and breaktime here?
+    if (isActive) {
+      if (sessionState) {
+        sessionInterval = setInterval(() => {
+          if (timeSeconds > 0) {
+            setTimeSeconds((timeSeconds) => timeSeconds - 1);
+            // behind by 1 render
+            console.log("if sesh: ", timeSeconds);
+          }
+        }, 100);
+      } else if (breakState) {
+        breakInterval = setInterval(() => {
+          if (breakTimeSeconds > 0) {
+            setBreakTimeSeconds((breakTimeSeconds) => breakTimeSeconds - 1);
+
+            console.log("if break: ", breakTimeSeconds);
+          }
+        }, 100);
+      }
     }
     // && !isActive
     if (timeSeconds === 0) {
-      console.log("else", timeSeconds);
-      clearInterval(myInterval);
+      // hold for a second setTimeout?
+      setTimeout(() => {
+        console.log("timeout");
+        // alternate states:
+        setSessionState(false);
+        setBreakState(true);
+        // clearInterval(sessionInterval);
+        setTimeSeconds(session * minuteMultiplier);
+      }, 1000);
+      console.log("else sesh: ", timeSeconds);
+    } else if (breakTimeSeconds === 0) {
+      setTimeout(() => {
+        console.log("else break: ", breakTimeSeconds);
+        setBreakState(false);
+        setSessionState(true);
+        clearInterval(breakInterval);
+        setBreakTimeSeconds(breaktime * minuteMultiplier);
+      }, 1000);
     }
 
-    return () => clearInterval(myInterval);
-  }, [isActive, timeSeconds]);
+    return () => {
+      clearInterval(sessionInterval);
+      clearInterval(breakInterval);
+    };
+  }, [isActive, timeSeconds, breakTimeSeconds, sessionState, breakState]);
 
   return (
     <div className="App">
@@ -83,7 +124,6 @@ function App() {
               // The function will receive the previous value and return an updated value.
               if (session > 59) {
                 setSession(60);
-                // setTimeSeconds(60 * minuteMultiplier);
               } else {
                 setSession((session) => session + 1);
                 setTimeSeconds((timeSeconds) => timeSeconds + 60);
@@ -120,7 +160,9 @@ function App() {
                 setBreaktime(60);
               } else {
                 setBreaktime((breaktime) => breaktime + 1);
-                setTimeSeconds((timeSeconds) => timeSeconds + 60);
+                setBreakTimeSeconds(
+                  (breakTimeSeconds) => breakTimeSeconds + 60
+                );
               }
             }}
           >
@@ -134,7 +176,9 @@ function App() {
                 setBreaktime(1);
               } else {
                 setBreaktime((breaktime) => breaktime - 1);
-                setTimeSeconds((timeSeconds) => timeSeconds - 60);
+                setBreakTimeSeconds(
+                  (breakTimeSeconds) => breakTimeSeconds - 60
+                );
               }
             }}
           >
@@ -145,7 +189,7 @@ function App() {
         </div>
         <div className="timer-container">
           {/* 7 */}
-          <p id="timer-label">Session/Idle/Break</p>
+          <p id="timer-label">{`${sessionState ? "SESSION" : "BREAK"}`}</p>
           {/* 8 */}
           <div id="time-left">
             {calculateTimeLeft().minutes < 10
