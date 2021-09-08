@@ -1,4 +1,5 @@
 import React, { useEffect, useReducer } from "react";
+import arcade_jackpot from "./sounds/arcade-jackpot.mp3";
 
 function App() {
   const defaultSession = 25;
@@ -12,56 +13,60 @@ function App() {
           return {
             ...state,
             session: state.session + 1,
-            // will this get prev state or does it read the previous statement first?
-            timeSeconds: state.timeSeconds + minuteMultiplier,
+            // will this get prev state or does it read the prior statement first?
+            timeSeconds: (state.session + 1) * minuteMultiplier,
           };
         }
         case "SESSION_OVERFLOW": {
           return {
             ...state,
             session: 60,
+            timeSeconds: 60 * minuteMultiplier,
           };
         }
         case "DEC_SESSION": {
           return {
             ...state,
             session: state.session - 1,
-            // will this get prev state or does it read the previous statement first?
-            timeSeconds: state.timeSeconds - minuteMultiplier,
+            // will this get prev state or does it read the prior statement first?
+            timeSeconds: (state.session - 1) * minuteMultiplier,
           };
         }
         case "SESSION_UNDERFLOW": {
           return {
             ...state,
             session: 1,
+            timeSeconds: minuteMultiplier,
           };
         }
         case "INC_BREAK": {
           return {
             ...state,
             breaktime: state.breaktime + 1,
-            // will this get prev state or does it read the previous statement first?
-            breakTimeSeconds: state.breakTimeSeconds + minuteMultiplier,
+            // will this get prev state or does it read the prior statement first?
+            breakTimeSeconds: (state.breaktime + 1) * minuteMultiplier,
           };
         }
         case "BREAK_OVERFLOW": {
           return {
             ...state,
-            session: 60,
+            breaktime: 60,
+            breakTimeSeconds: 60 * minuteMultiplier,
           };
         }
         case "DEC_BREAK": {
           return {
             ...state,
             breaktime: state.breaktime - 1,
-            // will this get prev state or does it read the previous statement first?
-            breakTimeSeconds: state.breakTimeSeconds - minuteMultiplier,
+            // will this get prev state or does it read the prior statement first?
+            breakTimeSeconds: (state.breakTimeSeconds - 1) * minuteMultiplier,
           };
         }
         case "BREAK_UNDERFLOW": {
           return {
             ...state,
-            session: 1,
+            breaktime: 1,
+            breakTimeSeconds: 1 * minuteMultiplier,
           };
         }
         case "TOGGLE_PLAY_PAUSE": {
@@ -102,6 +107,11 @@ function App() {
             breakTimeSeconds: state.breaktime * minuteMultiplier,
           };
         }
+        case "IGNORE": {
+          return {
+            ...state,
+          };
+        }
         case "RESET": {
           return {
             session: defaultSession,
@@ -114,20 +124,28 @@ function App() {
           };
         }
         default:
-          return state;
+          alert("ENTERED AN UNKNOWN STATE");
+          return {
+            ...state,
+          };
       }
     },
     {
       // intial state of my application
-      session: 1,
-      breaktime: 1,
+      session: defaultSession,
+      breaktime: defaultBreak,
       isActive: false,
-      timeSeconds: 1 * minuteMultiplier,
-      breakTimeSeconds: 1 * minuteMultiplier,
+      timeSeconds: defaultSession * minuteMultiplier,
+      breakTimeSeconds: defaultBreak * minuteMultiplier,
       sessionState: true,
       breakState: false,
     }
   );
+
+  const playAudio = () => {
+    const audioElement = document.getElementById("beep");
+    audioElement.play();
+  };
 
   const toggle = () => {
     dispatch({ type: "TOGGLE_PLAY_PAUSE" });
@@ -196,7 +214,7 @@ function App() {
       setTimeout(() => {
         console.log("timeout");
         dispatch({ type: "SESSION_BREAK" });
-        // clearInterval(sessionInterval);
+        clearInterval(sessionInterval);
       }, 1000);
       console.log("else sesh: ", state.timeSeconds);
     } else if (state.breakTimeSeconds === 0) {
@@ -230,12 +248,16 @@ function App() {
           <button
             id="session-increment"
             onClick={() => {
-              // if the new state is computed using the prev state, you can pass a function to setState.
-              // The function will receive the previous value and return an updated value.
-              if (state.session > 59) {
-                dispatch({ type: "SESSION_OVERFLOW" });
+              if (state.isActive) {
+                dispatch({ type: "IGNORE" });
               } else {
-                dispatch({ type: "INC_SESSION" });
+                // if the new state is computed using the prev state, you can pass a function to setState.
+                // The function will receive the previous value and return an updated value.
+                if (state.session > 59) {
+                  dispatch({ type: "SESSION_OVERFLOW" });
+                } else {
+                  dispatch({ type: "INC_SESSION" });
+                }
               }
             }}
           >
@@ -245,10 +267,14 @@ function App() {
           <button
             id="session-decrement"
             onClick={() => {
-              if (state.session < 2) {
-                dispatch({ type: "SESSION_UNDERFLOW" });
+              if (state.isActive) {
+                dispatch({ type: "IGNORE" });
               } else {
-                dispatch({ type: "DEC_SESSION" });
+                if (state.session < 2) {
+                  dispatch({ type: "SESSION_UNDERFLOW" });
+                } else {
+                  dispatch({ type: "DEC_SESSION" });
+                }
               }
             }}
           >
@@ -266,10 +292,14 @@ function App() {
           <button
             id="break-increment"
             onClick={() => {
-              if (state.breaktime > 59) {
-                dispatch({ type: "BREAK_OVERFLOW" });
+              if (state.isActive) {
+                dispatch({ type: "IGNORE" });
               } else {
-                dispatch({ type: "INC_BREAK" });
+                if (state.breaktime > 59) {
+                  dispatch({ type: "BREAK_OVERFLOW" });
+                } else {
+                  dispatch({ type: "INC_BREAK" });
+                }
               }
             }}
           >
@@ -279,10 +309,14 @@ function App() {
           <button
             id="break-decrement"
             onClick={() => {
-              if (state.breaktime < 2) {
-                dispatch({ type: "BREAK_UNDERFLOW" });
+              if (state.isActive) {
+                dispatch({ type: "IGNORE" });
               } else {
-                dispatch({ type: "DEC_BREAK" });
+                if (state.breaktime < 2) {
+                  dispatch({ type: "BREAK_UNDERFLOW" });
+                } else {
+                  dispatch({ type: "DEC_BREAK" });
+                }
               }
             }}
           >
@@ -316,6 +350,7 @@ function App() {
           <button id="reset" onClick={reset}>
             RESET
           </button>
+          <audio src={arcade_jackpot} id="beep"></audio>
         </div>
       </section>
       <section className="footer">MADE w/ ❤️ BY JOSEPH</section>
