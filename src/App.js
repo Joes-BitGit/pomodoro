@@ -144,7 +144,15 @@ function App() {
 
   const playAudio = () => {
     const audioElement = document.getElementById("beep");
+    audioElement.pause();
+    audioElement.currentTime = 0;
     audioElement.play();
+  };
+
+  const resetAudio = () => {
+    const audioElement = document.getElementById("beep");
+    audioElement.pause();
+    audioElement.currentTime = 0;
   };
 
   const toggle = () => {
@@ -154,6 +162,7 @@ function App() {
   const reset = () => {
     // timer resets to default
     dispatch({ type: "RESET" });
+    resetAudio();
   };
 
   // function that takes in a number
@@ -192,37 +201,36 @@ function App() {
     if (state.isActive) {
       if (state.sessionState) {
         sessionInterval = setInterval(() => {
-          if (state.timeSeconds > 0) {
+          if (state.timeSeconds > 1) {
             dispatch({ type: "SESSION_RUNNING" });
-
+          } else if (state.timeSeconds === 1) {
             // behind by 1 render
-            console.log("if sesh: ", state.timeSeconds);
+            console.log("if sesh #1: ", state.timeSeconds);
+            dispatch({ type: "SESSION_RUNNING" });
+            console.log("if sesh #2: ", state.timeSeconds);
+            playAudio();
+          } else {
+            console.log("else sesh", state.timeSeconds);
+            dispatch({ type: "SESSION_BREAK" });
+            clearInterval(sessionInterval);
           }
         }, 1000);
       } else if (state.breakState) {
         breakInterval = setInterval(() => {
-          if (state.breakTimeSeconds > 0) {
+          if (state.breakTimeSeconds > 1) {
             dispatch({ type: "BREAK_RUNNING" });
 
             console.log("if break: ", state.breakTimeSeconds);
+          } else if (state.breakTimeSeconds === 1) {
+            dispatch({ type: "BREAK_RUNNING" });
+            playAudio();
+          } else {
+            console.log("else break: ", state.breakTimeSeconds);
+            dispatch({ type: "BREAK_SESSION" });
+            clearInterval(breakInterval);
           }
         }, 1000);
       }
-    }
-    if (state.timeSeconds === 0) {
-      // hold for a second setTimeout?
-      setTimeout(() => {
-        console.log("timeout");
-        dispatch({ type: "SESSION_BREAK" });
-        clearInterval(sessionInterval);
-      }, 1000);
-      console.log("else sesh: ", state.timeSeconds);
-    } else if (state.breakTimeSeconds === 0) {
-      setTimeout(() => {
-        console.log("else break: ", state.breakTimeSeconds);
-        dispatch({ type: "BREAK_SESSION" });
-        clearInterval(breakInterval);
-      }, 1000);
     }
 
     return () => {
