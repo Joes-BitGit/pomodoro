@@ -1,5 +1,6 @@
 import React, { useEffect, useReducer } from "react";
 import arcade_jackpot from "./sounds/arcade-jackpot.mp3";
+import "./styles.css";
 
 function App() {
   const defaultSession = 25;
@@ -205,12 +206,9 @@ function App() {
             dispatch({ type: "SESSION_RUNNING" });
           } else if (state.timeSeconds === 1) {
             // behind by 1 render
-            console.log("if sesh #1: ", state.timeSeconds);
             dispatch({ type: "SESSION_RUNNING" });
-            console.log("if sesh #2: ", state.timeSeconds);
             playAudio();
           } else {
-            console.log("else sesh", state.timeSeconds);
             dispatch({ type: "SESSION_BREAK" });
             clearInterval(sessionInterval);
           }
@@ -219,13 +217,10 @@ function App() {
         breakInterval = setInterval(() => {
           if (state.breakTimeSeconds > 1) {
             dispatch({ type: "BREAK_RUNNING" });
-
-            console.log("if break: ", state.breakTimeSeconds);
           } else if (state.breakTimeSeconds === 1) {
             dispatch({ type: "BREAK_RUNNING" });
             playAudio();
           } else {
-            console.log("else break: ", state.breakTimeSeconds);
             dispatch({ type: "BREAK_SESSION" });
             clearInterval(breakInterval);
           }
@@ -247,108 +242,122 @@ function App() {
 
   return (
     <div className="App">
-      <section className="title">Pomodoro!</section>
+      <section className="title">
+        <h1 className="header">Pomodoro!</h1>
+      </section>
+
       <section className="body">
         <div className="session-container">
           {/* Story 2 */}
           <p id="session-label">Session Length</p>
-          {/* 4 */}
-          <button
-            id="session-increment"
-            onClick={() => {
-              if (state.isActive) {
-                dispatch({ type: "IGNORE" });
-              } else {
-                // if the new state is computed using the prev state, you can pass a function to setState.
-                // The function will receive the previous value and return an updated value.
-                if (state.session > 59) {
-                  dispatch({ type: "SESSION_OVERFLOW" });
+          <div className="session-input">
+            {/* 4 */}
+            <button
+              id="session-increment"
+              onClick={() => {
+                if (state.isActive) {
+                  dispatch({ type: "IGNORE" });
                 } else {
-                  dispatch({ type: "INC_SESSION" });
+                  // if the new state is computed using the prev state, you can pass a function to setState.
+                  // The function will receive the previous value and return an updated value.
+                  if (state.session > 59) {
+                    dispatch({ type: "SESSION_OVERFLOW" });
+                  } else {
+                    dispatch({ type: "INC_SESSION" });
+                  }
                 }
-              }
-            }}
-          >
-            +
-          </button>
-          {/* 3 */}
-          <button
-            id="session-decrement"
-            onClick={() => {
-              if (state.isActive) {
-                dispatch({ type: "IGNORE" });
-              } else {
-                if (state.session < 2) {
-                  dispatch({ type: "SESSION_UNDERFLOW" });
+              }}
+            >
+              +
+            </button>
+            {/* 6 */}
+            <div id="session-length">
+              {state.session ? state.session : defaultSession}
+            </div>
+
+            {/* 3 */}
+            <button
+              id="session-decrement"
+              onClick={() => {
+                if (state.isActive) {
+                  dispatch({ type: "IGNORE" });
                 } else {
-                  dispatch({ type: "DEC_SESSION" });
+                  if (state.session < 2) {
+                    dispatch({ type: "SESSION_UNDERFLOW" });
+                  } else {
+                    dispatch({ type: "DEC_SESSION" });
+                  }
                 }
-              }
-            }}
-          >
-            -
-          </button>
-          {/* 6 */}
-          <div id="session-length">
-            {state.session ? state.session : defaultSession}
+              }}
+            >
+              -
+            </button>
           </div>
         </div>
         <div className="break-container">
           {/* Story 1 */}
           <p id="break-label">Break Length</p>
-          {/* 4 */}
-          <button
-            id="break-increment"
-            onClick={() => {
-              if (state.isActive) {
-                dispatch({ type: "IGNORE" });
-              } else {
-                if (state.breaktime > 59) {
-                  dispatch({ type: "BREAK_OVERFLOW" });
+          <div className="break-input">
+            {/* 4 */}
+            <button
+              id="break-increment"
+              onClick={() => {
+                if (state.isActive) {
+                  dispatch({ type: "IGNORE" });
                 } else {
-                  dispatch({ type: "INC_BREAK" });
+                  if (state.breaktime > 59) {
+                    dispatch({ type: "BREAK_OVERFLOW" });
+                  } else {
+                    dispatch({ type: "INC_BREAK" });
+                  }
                 }
-              }
-            }}
-          >
-            +
-          </button>
-          {/* 3 */}
-          <button
-            id="break-decrement"
-            onClick={() => {
-              if (state.isActive) {
-                dispatch({ type: "IGNORE" });
-              } else {
-                if (state.breaktime < 2) {
-                  dispatch({ type: "BREAK_UNDERFLOW" });
+              }}
+            >
+              +
+            </button>
+            {/* 5  */}
+            <div id="break-length">
+              {state.breaktime ? state.breaktime : defaultBreak}
+            </div>
+            {/* 3 */}
+            <button
+              id="break-decrement"
+              onClick={() => {
+                if (state.isActive) {
+                  dispatch({ type: "IGNORE" });
                 } else {
-                  dispatch({ type: "DEC_BREAK" });
+                  if (state.breaktime < 2) {
+                    dispatch({ type: "BREAK_UNDERFLOW" });
+                  } else {
+                    dispatch({ type: "DEC_BREAK" });
+                  }
                 }
-              }
-            }}
-          >
-            -
-          </button>
-          {/* 5  */}
-          <div id="break-length">
-            {state.breaktime ? state.breaktime : defaultBreak}
+              }}
+            >
+              -
+            </button>
           </div>
         </div>
         <div className="timer-container">
-          {/* 7 */}
-          <p id="timer-label">{`${
-            state.isActive ? (state.sessionState ? "SESSION" : "BREAK") : "IDLE"
-          }`}</p>
-          {/* 8 */}
-          <div id="time-left">
-            {calculateTimeLeft().minutes < 10
-              ? `0${calculateTimeLeft().minutes}`
-              : calculateTimeLeft().minutes}
-            :
-            {calculateTimeLeft().seconds < 10
-              ? `0${calculateTimeLeft().seconds}`
-              : calculateTimeLeft().seconds}
+          <div className="timer-display">
+            {/* 7 */}
+            <p id="timer-label">{`${
+              state.isActive
+                ? state.sessionState
+                  ? "SESSION"
+                  : "BREAK"
+                : "IDLE"
+            }`}</p>
+            {/* 8 */}
+            <div id="time-left">
+              {calculateTimeLeft().minutes < 10
+                ? `0${calculateTimeLeft().minutes}`
+                : calculateTimeLeft().minutes}
+              :
+              {calculateTimeLeft().seconds < 10
+                ? `0${calculateTimeLeft().seconds}`
+                : calculateTimeLeft().seconds}
+            </div>
           </div>
           {/* 9 */}
           <button id="start_stop" onClick={toggle}>
@@ -361,7 +370,14 @@ function App() {
           <audio src={arcade_jackpot} id="beep"></audio>
         </div>
       </section>
-      <section className="footer">MADE w/ ❤️ BY JOSEPH</section>
+      <section className="footer">
+        MADE w/ ❤️ BY JOSEPH
+        <div className="attribution">
+          Icon by
+          <a href="https://freeicons.io/profile/3117">1273358166187522</a> on
+          <a href="https://freeicons.io">freeicons.io</a>
+        </div>
+      </section>
     </div>
   );
 }
