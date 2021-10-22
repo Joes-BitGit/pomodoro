@@ -243,7 +243,7 @@ function App() {
   return (
     <div className="App">
       <section className="title">
-        <h1 className="header">Pomodoro!</h1>
+        <h1 className="header">Zucca Gialla Timer! 🎃 </h1>
       </section>
 
       <section className="body">
@@ -371,12 +371,12 @@ function App() {
         </div>
       </section>
       <section className="footer">
-        MADE w/ ❤️ BY JOSEPH
-        <div className="attribution">
+        MADE w/ 👻 BY JOSEPH
+        {/* <div className="attribution">
           Icon by
           <a href="https://freeicons.io/profile/3117">1273358166187522</a> on
           <a href="https://freeicons.io">freeicons.io</a>
-        </div>
+        </div> */}
       </section>
     </div>
   );

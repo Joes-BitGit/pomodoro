@@ -1,8 +1,14 @@
+:root {
+  --main-bg-color: rgb(68, 0, 68);
+  --main-txt-color: rgb(0, 211, 0);
+}
 body {
   margin: 0;
   padding: 0;
   border: 0;
   font-size: 100%;
+  color: var(--main-txt-color);
+  background: var(--main-bg-color);
 }
 .App {
   display: grid;
@@ -37,4 +43,18 @@ body {
 .timer-display {
   display: grid;
   place-items: center;
+}
+
+#session-increment {
+  line-height: 2.5;
+  font-size: 1rem;
+
+  color: white;
+  border-radius: 10px;
+  text-shadow: 1px 1px 1px #111;
+  background-color: skyblue;
+  box-shadow: 2px 2px #222;
+}
+
+@media screen and (min-width: 768px) {
 }
