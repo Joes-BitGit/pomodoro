@@ -1,6 +1,8 @@
 :root {
   --main-bg-color: rgb(68, 0, 68);
   --main-txt-color: rgb(0, 211, 0);
+  --green-btn-color: rgb(0, 128, 0);
+  --tomato-btn-color: rgb(255, 99, 71);
 }
 body {
   margin: 0;
@@ -33,11 +35,13 @@ body {
 .session-input {
   display: flex;
   justify-content: space-between;
+  align-items: baseline;
 }
 
 .break-input {
   display: flex;
   justify-content: space-between;
+  align-items: baseline;
 }
 
 .timer-display {
@@ -45,15 +49,52 @@ body {
   place-items: center;
 }
 
-#session-increment {
-  line-height: 2.5;
+#session-increment,
+#break-increment {
+  line-height: 1.5;
   font-size: 1rem;
 
   color: white;
   border-radius: 10px;
   text-shadow: 1px 1px 1px #111;
-  background-color: skyblue;
-  box-shadow: 2px 2px #222;
+  background-color: var(--green-btn-color);
+  box-shadow: 2px 2px #333;
+}
+
+#session-decrement,
+#break-decrement {
+  line-height: 1.5;
+  font-size: 1rem;
+
+  color: white;
+  border-radius: 10px;
+  text-shadow: 1px 1px 1px #111;
+  background-color: var(--tomato-btn-color);
+  box-shadow: 2px 2px #333;
+}
+
+#start_stop {
+  font-size: 1rem;
+
+  color: white;
+  border-radius: 5px;
+  border-color: greenyellow;
+  text-shadow: 1px 1px 1px #111;
+  box-shadow: 2px 2px #333;
+  background: var(--green-btn-color);
+  margin-right: 5px;
+}
+
+#reset {
+  font-size: 1rem;
+
+  color: white;
+  border-radius: 5px;
+  border-color: lightcoral;
+  text-shadow: 1px 1px 1px #111;
+  box-shadow: 2px 2px #333;
+  background: var(--tomato-btn-color);
+  margin-left: 5px;
 }
 
 @media screen and (min-width: 768px) {
