@@ -243,7 +243,7 @@ function App() {
   return (
     <div className="App">
       <section className="title">
-        <h1 className="header">Zucca Gialla Timer! 🎃 </h1>
+        <h1 className="header">Zucca Timer! 🎃 </h1>
       </section>
 
       <section className="body">
